@@ -1,0 +1,64 @@
+root = true
+
+# ===== Regras gerais para qualquer arquivo =====
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# ===== Regras para código C# =====
+[*.cs]
+
+# Usings
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# Preferir var quando o tipo é óbvio
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+
+# Chaves e formatação básica
+csharp_new_line_before_open_brace = all
+csharp_new_line_between_query_expression_clauses = true
+
+# ===== Convenções de nomes =====
+
+# Interfaces começam com I e PascalCase
+dotnet_naming_rule.interfaces_ipascal.severity = suggestion
+dotnet_naming_rule.interfaces_ipascal.symbols = interfaces
+dotnet_naming_rule.interfaces_ipascal.style = ipascal_style
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+dotnet_naming_symbols.interfaces.required_modifiers = 
+
+dotnet_naming_style.ipascal_style.capitalization = pascal_case
+dotnet_naming_style.ipascal_style.required_prefix = I
+
+# Campos privados: _camelCase
+dotnet_naming_rule.private_fields__camel.severity = suggestion
+dotnet_naming_rule.private_fields__camel.symbols = private_fields
+dotnet_naming_rule.private_fields__camel.style = _camel_style
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers = 
+
+dotnet_naming_style._camel_style.capitalization = camel_case
+dotnet_naming_style._camel_style.required_prefix = _
+
+# Métodos async terminam com Async
+dotnet_naming_rule.async_methods_end_with_async.severity = suggestion
+dotnet_naming_rule.async_methods_end_with_async.symbols = async_methods
+dotnet_naming_rule.async_methods_end_with_async.style = async_suffix_style
+
+dotnet_naming_symbols.async_methods.applicable_kinds = method
+dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+dotnet_naming_symbols.async_methods.required_modifiers = 
+
+dotnet_naming_style.async_suffix_style.capitalization = pascal_case
+dotnet_naming_style.async_suffix_style.required_suffix = Async
