@@ -7,8 +7,8 @@ public class Movie
     public string? Description { get; private set; }
     public int DurationInMinutes { get; private set; }
     public decimal Price { get; private set; }
-    public DateTime CreatedAt { get; private set; } 
-    public DateTime UpdatedAt { get; private set; } 
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
 
     private Movie() { }
 

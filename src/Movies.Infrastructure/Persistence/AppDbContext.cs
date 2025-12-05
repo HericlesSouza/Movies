@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
 using Movies.Domain.Entities;
 
 namespace Movies.Infrastructure.Persistence;
