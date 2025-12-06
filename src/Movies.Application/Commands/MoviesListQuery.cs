@@ -1,6 +1,6 @@
 using Movies.Application.Common.Enum;
 
-namespace Movies.Application.DTOs;
+namespace Movies.Application.Commands;
 
 public record MoviesListQuery(
     int Page = 1,

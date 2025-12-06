@@ -1,4 +1,4 @@
-namespace Movies.Application.DTOs;
+namespace Movies.Application.Commands;
 
 public record MovieUpdateDto(
     string Title,
