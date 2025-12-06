@@ -3,7 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using Movies.API.Contracts.Requests;
-using Movies.Application.Commands.CreateMovie;
+using Movies.Application.Movies.Commands.CreateMovie;
+using Movies.Application.Movies.Queries.GetMovieById;
 
 namespace Movies.API.Controllers;
 
@@ -27,12 +28,21 @@ public class MoviesController(ISender sender) : ControllerBase
 
         var result = await _sender.Send(command, ct);
 
-        return CreatedAtAction(nameof(GetById), result);
+        return CreatedAtAction(nameof(GetByIdAsync), result);
     }
 
-    [HttpGet]
-    public IActionResult GetById()
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return Ok("Movies API is running...");
+        var query = new GetMovieByIdQuery(id);
+
+        var result = await _sender.Send(query, ct);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
 }

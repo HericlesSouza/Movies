@@ -2,7 +2,7 @@ using MediatR;
 
 using Movies.Application.DTOs;
 
-namespace Movies.Application.Commands.CreateMovie;
+namespace Movies.Application.Movies.Commands.CreateMovie;
 
 public record CreateMovieCommand(
     string Title,

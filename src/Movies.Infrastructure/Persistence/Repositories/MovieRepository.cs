@@ -1,5 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+
 using Movies.Application.Abstractions.Persistence;
-using Movies.Application.DTOs;
 using Movies.Domain.Entities;
 
 namespace Movies.Infrastructure.Persistence.Repositories;
@@ -19,15 +20,15 @@ public class MovieRepository(AppDbContext context) : IMovieRepository
         throw new NotImplementedException();
     }
 
-    public Task<Movie?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Movie?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        return await _context.Movies.FirstOrDefaultAsync(m => m.Id == id, ct);
     }
 
-    public Task<List<Movie>> ListAsync(MoviesListQuery query, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
+    //public Task<List<Movie>> ListAsync(MoviesListQuery query, CancellationToken ct = default)
+    //{
+    //    throw new NotImplementedException();
+    //}
 
     public Task<Movie> UpdateAsync(Movie movie, CancellationToken ct = default)
     {
