@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace Movies.Application.DTOs.Validators;
+namespace Movies.Application.Commands.CreateMovie;
 
-public class MovieCreateDtoValidator : AbstractValidator<MovieCreateDto>
+public class CreateMovieValidator : AbstractValidator<CreateMovieCommand>
 {
-    public MovieCreateDtoValidator()
+    public CreateMovieValidator()
     {
         RuleFor(movie => movie.Title)
             .NotEmpty().WithMessage("Title cannot be empty.")

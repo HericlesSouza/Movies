@@ -1,6 +1,6 @@
-namespace Movies.Application.DTOs;
+namespace Movies.Application.Commands.CreateMovie;
 
-public record MovieCreateDto(
+public record CreateMovieCommand(
     string Title,
     string? Description,
     int DurationInMinues,
