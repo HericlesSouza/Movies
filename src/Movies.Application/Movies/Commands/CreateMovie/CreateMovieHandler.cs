@@ -4,7 +4,7 @@ using Movies.Application.Abstractions.Persistence;
 using Movies.Application.DTOs;
 using Movies.Domain.Entities;
 
-namespace Movies.Application.Commands.CreateMovie;
+namespace Movies.Application.Movies.Commands.CreateMovie;
 
 public class CreateMovieHandler(
     IMovieRepository repository,

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Movies.Application.Commands.CreateMovie;
+namespace Movies.Application.Movies.Commands.CreateMovie;
 
 public class CreateMovieCommandValidator : AbstractValidator<CreateMovieCommand>
 {
