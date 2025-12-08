@@ -2,9 +2,11 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Movies.API.Contracts.Queries;
 using Movies.API.Contracts.Requests;
 using Movies.Application.Movies.Commands.CreateMovie;
 using Movies.Application.Movies.Queries.GetMovieById;
+using Movies.Application.Movies.Queries.ListMovies;
 
 namespace Movies.API.Controllers;
 
@@ -39,9 +41,23 @@ public class MoviesController(ISender sender) : ControllerBase
         var result = await _sender.Send(query, ct);
 
         if (result is null)
-        {
             return NotFound();
-        }
+
+        return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllAsync([FromQuery] GetMoviesQuery moviesQuery, CancellationToken ct)
+    {
+        var query = new ListMoviesQuery(
+            moviesQuery.Page,
+            moviesQuery.PageSize,
+            moviesQuery.Search,
+            moviesQuery.SortBy,
+            moviesQuery.SortDirection
+            );
+
+        var result = await _sender.Send(query, ct);
 
         return Ok(result);
     }
