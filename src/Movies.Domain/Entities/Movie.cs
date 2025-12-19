@@ -55,12 +55,12 @@ public class Movie
         Price = price;
     }
 
-    public void Update(string title, string? description, int durationInMinutes, decimal price)
+    public void Update(string title, string? description, int durationInMinutes, decimal price, DateTime updatedAt)
     {
         SetTitle(title);
         SetDescription(description);
         SetDurationInMinutes(durationInMinutes);
         SetPrice(price);
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = updatedAt;
     }
 }

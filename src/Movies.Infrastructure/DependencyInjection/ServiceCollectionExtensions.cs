@@ -3,8 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Movies.Application.Abstractions.Persistence;
+using Movies.Application.Abstractions.Time;
 using Movies.Infrastructure.Persistence;
 using Movies.Infrastructure.Persistence.Repositories;
+using Movies.Infrastructure.Time;
 
 namespace Movies.Infrastructure.DependencyInjection;
 
@@ -21,6 +23,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IMovieRepository, MovieRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddSingleton<IClock, Clock>();
 
         return services;
     }

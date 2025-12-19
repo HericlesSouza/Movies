@@ -1,16 +1,19 @@
 using MediatR;
 
 using Movies.Application.Abstractions.Persistence;
+using Movies.Application.Abstractions.Time;
 using Movies.Application.DTOs;
 
 namespace Movies.Application.Movies.Commands.UpdateMovie;
 
 public class UpdateMovieHandler(
     IMovieRepository repository,
-    IUnitOfWork unitOfWork) : IRequestHandler<UpdateMovieCommand, MovieDto?>
+    IUnitOfWork unitOfWork,
+    IClock clock) : IRequestHandler<UpdateMovieCommand, MovieDto?>
 {
     private readonly IMovieRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IClock _clock = clock;
 
     public async Task<MovieDto?> Handle(UpdateMovieCommand command, CancellationToken ct)
     {
@@ -21,7 +24,12 @@ public class UpdateMovieHandler(
             return null;
         }
 
-        movie.Update(command.Title, command.Description, command.DurationInMinutes, command.Price);
+        movie.Update(
+            command.Title,
+            command.Description,
+            command.DurationInMinutes,
+            command.Price,
+            _clock.UtcNow);
 
         await _repository.UpdateAsync(movie, ct);
 

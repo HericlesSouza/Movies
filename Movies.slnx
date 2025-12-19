@@ -5,4 +5,7 @@
     <Project Path="src/Movies.Domain/Movies.Domain.csproj" />
     <Project Path="src/Movies.Infrastructure/Movies.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Movies.UnitTests/Movies.UnitTests.csproj" Id="958994e1-2dc4-47c1-ab9e-86a98e03d402" />
+  </Folder>
 </Solution>
