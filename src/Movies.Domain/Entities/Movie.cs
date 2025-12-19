@@ -12,11 +12,11 @@ public class Movie
 
     private Movie() { }
 
-    public Movie(string title, string? description, int duration, decimal price)
+    public Movie(string title, string? description, int durationInMinutes, decimal price)
     {
         SetTitle(title);
         SetDescription(description);
-        SetDurationInMinutes(duration);
+        SetDurationInMinutes(durationInMinutes);
         SetPrice(price);
 
         CreatedAt = DateTime.UtcNow;
@@ -53,5 +53,14 @@ public class Movie
             throw new ArgumentException("Price cannot be negative.");
 
         Price = price;
+    }
+
+    public void Update(string title, string? description, int durationInMinutes, decimal price)
+    {
+        SetTitle(title);
+        SetDescription(description);
+        SetDurationInMinutes(durationInMinutes);
+        SetPrice(price);
+        UpdatedAt = DateTime.UtcNow;
     }
 }

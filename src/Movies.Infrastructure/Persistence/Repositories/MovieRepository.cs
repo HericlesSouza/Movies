@@ -28,7 +28,8 @@ public class MovieRepository(AppDbContext context) : IMovieRepository
 
     public Task<Movie> UpdateAsync(Movie movie, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _context.Movies.Update(movie);
+        return Task.FromResult(movie);
     }
 
     public async Task<(IReadOnlyList<Movie> Items, int TotalCount)> ListAsync(

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.API.Contracts.Queries;
 using Movies.API.Contracts.Requests;
 using Movies.Application.Movies.Commands.CreateMovie;
+using Movies.Application.Movies.Commands.UpdateMovie;
 using Movies.Application.Movies.Queries.GetMovieById;
 using Movies.Application.Movies.Queries.ListMovies;
 
@@ -58,6 +59,28 @@ public class MoviesController(ISender sender) : ControllerBase
             );
 
         var result = await _sender.Send(query, ct);
+
+        return Ok(result);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateAsync(
+        [FromBody] UpdateMovieRequest request,
+        Guid id,
+        CancellationToken ct)
+    {
+        var command = new UpdateMovieCommand(
+            id,
+            request.Title,
+            request.Description,
+            request.DurationInMinutes,
+            request.Price
+            );
+
+        var result = await _sender.Send(command, ct);
+
+        if (result is null)
+            return NotFound();
 
         return Ok(result);
     }
