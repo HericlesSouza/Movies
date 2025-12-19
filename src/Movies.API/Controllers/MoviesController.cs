@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Movies.API.Contracts.Queries;
 using Movies.API.Contracts.Requests;
 using Movies.Application.Movies.Commands.CreateMovie;
+using Movies.Application.Movies.Commands.DeleteMovie;
 using Movies.Application.Movies.Commands.UpdateMovie;
 using Movies.Application.Movies.Queries.GetMovieById;
 using Movies.Application.Movies.Queries.ListMovies;
@@ -83,5 +84,18 @@ public class MoviesController(ISender sender) : ControllerBase
             return NotFound();
 
         return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
+    {
+        var command = new DeleteMovieCommand(id);
+
+        var result = await _sender.Send(command, ct);
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
     }
 }

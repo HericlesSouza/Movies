@@ -18,7 +18,8 @@ public class MovieRepository(AppDbContext context) : IMovieRepository
 
     public Task DeleteAsync(Movie movie, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _context.Movies.Remove(movie);
+        return Task.CompletedTask;
     }
 
     public async Task<Movie?> GetByIdAsync(Guid id, CancellationToken ct = default)

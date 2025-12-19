@@ -4,7 +4,7 @@ using Movies.Application.DTOs;
 
 namespace Movies.Application.Movies.Commands.UpdateMovie;
 
-public record class UpdateMovieCommand(
+public record UpdateMovieCommand(
     Guid Id,
     string Title,
     string? Description,
