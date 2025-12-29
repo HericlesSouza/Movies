@@ -32,11 +32,11 @@ public class MoviesController(ISender sender) : ControllerBase
 
         var result = await _sender.Send(command, ct);
 
-        return CreatedAtAction(nameof(GetByIdAsync), result);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var query = new GetMovieByIdQuery(id);
 
@@ -49,7 +49,7 @@ public class MoviesController(ISender sender) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync([FromQuery] GetMoviesQuery moviesQuery, CancellationToken ct)
+    public async Task<IActionResult> GetAll([FromQuery] GetMoviesQuery moviesQuery, CancellationToken ct)
     {
         var query = new ListMoviesQuery(
             moviesQuery.Page,
@@ -65,7 +65,7 @@ public class MoviesController(ISender sender) : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateAsync(
+    public async Task<IActionResult> Update(
         [FromBody] UpdateMovieRequest request,
         Guid id,
         CancellationToken ct)
@@ -87,7 +87,7 @@ public class MoviesController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var command = new DeleteMovieCommand(id);
 
