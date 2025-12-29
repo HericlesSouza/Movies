@@ -62,6 +62,8 @@ public class ListMoviesTests(IntegrationTestWebAppFactory factory) : BaseIntegra
         string sortBy,
         string reason)
     {
+        _ = reason;
+
         // Act        
         var response = await Client.GetAsync($"/api/movies?page={page}&pageSize={pageSize}&sortBy={sortBy}");
 
