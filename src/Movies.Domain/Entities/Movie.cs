@@ -12,15 +12,15 @@ public class Movie
 
     private Movie() { }
 
-    public Movie(string title, string? description, int durationInMinutes, decimal price)
+    public Movie(string title, string? description, int durationInMinutes, decimal price, DateTime createdAt)
     {
         SetTitle(title);
         SetDescription(description);
         SetDurationInMinutes(durationInMinutes);
         SetPrice(price);
 
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        CreatedAt = createdAt;
+        UpdatedAt = createdAt;
     }
 
     private void SetTitle(string title)

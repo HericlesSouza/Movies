@@ -25,7 +25,8 @@ public class MovieTests
             title,
             description,
             durationInMinutes,
-            price);
+            price,
+            DateTime.UtcNow);
 
         // Assert
         Assert.Equal(title, movie.Title);
@@ -48,7 +49,8 @@ public class MovieTests
             title,
             description,
             duration,
-            price));
+            price,
+            DateTime.UtcNow));
     }
 
     [Theory]
@@ -66,7 +68,8 @@ public class MovieTests
             title,
             description,
             duration,
-            price));
+            price,
+            DateTime.UtcNow));
     }
 
     [Theory]
@@ -83,7 +86,8 @@ public class MovieTests
             title,
             description,
             duration,
-            price));
+            price,
+            DateTime.UtcNow));
     }
 
     [Fact]
@@ -94,7 +98,8 @@ public class MovieTests
             "Old Title",
             "Old Description",
             100,
-            5.99m);
+            5.99m,
+            DateTime.UtcNow);
 
         var newTitle = "New Title";
         var newDescription = "New Description";

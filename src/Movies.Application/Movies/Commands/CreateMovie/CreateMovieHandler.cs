@@ -1,6 +1,7 @@
 using MediatR;
 
 using Movies.Application.Abstractions.Persistence;
+using Movies.Application.Abstractions.Time;
 using Movies.Application.DTOs;
 using Movies.Domain.Entities;
 
@@ -8,7 +9,8 @@ namespace Movies.Application.Movies.Commands.CreateMovie;
 
 public class CreateMovieHandler(
     IMovieRepository repository,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateMovieCommand, MovieDto>
+    IUnitOfWork unitOfWork,
+    IClock clock) : IRequestHandler<CreateMovieCommand, MovieDto>
 {
     private readonly IMovieRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -19,7 +21,8 @@ public class CreateMovieHandler(
             command.Title,
             command.Description,
             command.DurationInMinutes,
-            command.Price
+            command.Price,
+            clock.UtcNow
             );
 
         await _repository.AddAsync(movie, ct);

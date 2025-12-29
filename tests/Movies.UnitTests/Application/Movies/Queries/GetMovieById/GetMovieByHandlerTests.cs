@@ -26,7 +26,8 @@ public class GetMovieByIdHandlerTests
             title: "Se7en",
             description: "Detetives caçam um assassino baseado nos sete pecados.",
             durationInMinutes: 127,
-            price: 19.32m
+            price: 19.32m,
+            createdAt: DateTime.UtcNow
             );
 
 

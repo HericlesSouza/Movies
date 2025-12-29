@@ -1,6 +1,7 @@
 using Moq;
 
 using Movies.Application.Abstractions.Persistence;
+using Movies.Application.Abstractions.Time;
 using Movies.Application.Movies.Commands.CreateMovie;
 using Movies.Domain.Entities;
 namespace Movies.UnitTests.Application.Movies.Commands.CreateMovie;
@@ -9,13 +10,16 @@ public class CreateMovieHandlerTests
 {
     private readonly Mock<IMovieRepository> _movieRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IClock> _clock;
     private readonly CreateMovieHandler _handler;
 
     public CreateMovieHandlerTests()
     {
         _movieRepositoryMock = new Mock<IMovieRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
-        _handler = new CreateMovieHandler(_movieRepositoryMock.Object, _unitOfWorkMock.Object);
+        _clock = new Mock<IClock>();
+
+        _handler = new CreateMovieHandler(_movieRepositoryMock.Object, _unitOfWorkMock.Object, _clock.Object);
     }
 
     [Fact]
@@ -27,6 +31,9 @@ public class CreateMovieHandlerTests
             "A mind-bending thriller",
             148,
             9.99m);
+
+        var fixedDate = new DateTime(2025, 01, 01, 12, 0, 0, DateTimeKind.Utc);
+        _clock.Setup(c => c.UtcNow).Returns(fixedDate);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);

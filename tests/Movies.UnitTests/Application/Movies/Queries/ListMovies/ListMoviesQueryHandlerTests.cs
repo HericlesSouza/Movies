@@ -25,8 +25,8 @@ public class ListMoviesQueryHandlerTests
         var query = new ListMoviesQuery(10, 2);
         var movies = new List<Movie>
         {
-            new("Old Title", "Old Description", 100, 5.99m),
-            new("Another Title", "Another Description", 120, 7.99m)
+            new("Old Title", "Old Description", 100, 5.99m, DateTime.UtcNow),
+            new("Another Title", "Another Description", 120, 7.99m, DateTime.UtcNow)
         };
 
         _movieRepositoryMock
