@@ -2,38 +2,17 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Movies.Application.DTOs;
 using Movies.Application.Movies.Commands.CreateMovie;
 using Movies.Infrastructure.Persistence;
+using Movies.IntegrationTests.Abstractions;
 
 namespace Movies.IntegrationTests.Application.Movies.Commands.CreateMovie;
 
-public class CreateMovieTests : IClassFixture<IntegrationTestWebAppFactory>, IAsyncLifetime
+public class CreateMovieTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly HttpClient _client;
-    private readonly Func<Task> _resetDatabase;
-
-    public CreateMovieTests(IntegrationTestWebAppFactory factory)
-    {
-        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
-        _client = factory.CreateClient();
-
-        _resetDatabase = async () =>
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await context.Movies.ExecuteDeleteAsync();
-        };
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
-
-    public async Task InitializeAsync() => await _resetDatabase();
-
     [Fact]
     public async Task Create_ShouldPersistMovie_WhenRequestIsValid()
     {
@@ -45,14 +24,14 @@ public class CreateMovieTests : IClassFixture<IntegrationTestWebAppFactory>, IAs
                 Price: 10m);
 
         // Act
-        var createResponse = await _client.PostAsJsonAsync("/api/movies", command);
+        var createResponse = await Client.PostAsJsonAsync("/api/movies", command);
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         var responseDto = await createResponse.Content.ReadFromJsonAsync<MovieDto>();
         Assert.NotNull(responseDto);
 
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = ScopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         var movieDatabase = await context.Movies.FindAsync(responseDto.Id);
@@ -72,7 +51,7 @@ public class CreateMovieTests : IClassFixture<IntegrationTestWebAppFactory>, IAs
     public async Task Create_ShouldReturn400_WhenDataIsInvalid(CreateMovieCommand command)
     {
         // Act
-        var response = await _client.PostAsJsonAsync("/api/movies", command);
+        var response = await Client.PostAsJsonAsync("/api/movies", command);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

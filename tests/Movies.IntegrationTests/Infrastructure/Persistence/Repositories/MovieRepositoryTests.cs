@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Movies.Application.Abstractions.Persistence;
@@ -6,36 +5,12 @@ using Movies.Application.Common.Enum;
 using Movies.Application.Movies.Queries.ListMovies;
 using Movies.Domain.Entities;
 using Movies.Infrastructure.Persistence;
+using Movies.IntegrationTests.Abstractions;
 
 namespace Movies.IntegrationTests.Infrastructure.Persistence.Repositories;
 
-public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>, IAsyncLifetime
+public class MovieRepositoryTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    private readonly IServiceScope _scope;
-    private readonly IMovieRepository _repository;
-    private readonly AppDbContext _context;
-
-    public MovieRepositoryTests(IntegrationTestWebAppFactory factory)
-    {
-        _scope = factory.Services.CreateScope();
-
-        _repository = _scope.ServiceProvider.GetRequiredService<IMovieRepository>();
-        _context = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    }
-
-    // 2. Este método roda AUTOMATICAMENTE antes de CADA teste (e suporta await!)
-    public async Task InitializeAsync()
-    {
-        // Aqui é o lugar seguro para limpar o banco
-        await _context.Movies.ExecuteDeleteAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        _scope.Dispose();
-        await Task.CompletedTask;
-    }
-
     [Fact]
     public async Task ListAsync_ShouldFilterByTitle_WhenSearchParameterIsProvided()
     {
@@ -45,13 +20,21 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
         var movie2 = new Movie("Matrix Reloaded", "Continuação", 138, 12m, baseTime);
         var movie3 = new Movie("O Senhor dos Anéis", "Fantasia", 178, 15m, baseTime);
 
-        await _context.Movies.AddRangeAsync(movie1, movie2, movie3);
-        await _context.SaveChangesAsync();
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Movies.AddRangeAsync(movie1, movie2, movie3);
+            await context.SaveChangesAsync();
+        }
 
         var query = new ListMoviesQuery(default, default, "matrix");
 
         // Act
-        var (items, totalCount) = await _repository.ListAsync(
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var repository = scope.ServiceProvider.GetRequiredService<IMovieRepository>();
+
+            var (items, totalCount) = await repository.ListAsync(
             query.Page,
             query.PageSize,
             query.Search,
@@ -60,10 +43,11 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
             CancellationToken.None
             );
 
-        // Assert 
-        Assert.NotNull(items);
-        Assert.Equal(2, totalCount);
-        Assert.DoesNotContain(items, m => m.Title == "O Senhor dos Anéis");
+            // Assert 
+            Assert.NotNull(items);
+            Assert.Equal(2, totalCount);
+            Assert.DoesNotContain(items, m => m.Title == "O Senhor dos Anéis");
+        }
     }
 
     [Theory]
@@ -88,8 +72,12 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
         var movie3 = new Movie("A Força", "Desc", 130, 100m, baseTime.AddMinutes(2));
         var movie4 = new Movie("Filme Caro", "Desc", 240, 200m, baseTime.AddMinutes(3));
 
-        await _context.Movies.AddRangeAsync(movie1, movie2, movie3, movie4);
-        await _context.SaveChangesAsync();
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Movies.AddRangeAsync(movie1, movie2, movie3, movie4);
+            await context.SaveChangesAsync();
+        }
 
         var query = new ListMoviesQuery(
             Page: 1,
@@ -100,7 +88,11 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
         );
 
         // Act
-        var (items, totalCount) = await _repository.ListAsync(
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var repository = scope.ServiceProvider.GetRequiredService<IMovieRepository>();
+
+            var (items, totalCount) = await repository.ListAsync(
             query.Page,
             query.PageSize,
             query.Search,
@@ -109,11 +101,12 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
             CancellationToken.None
             );
 
-        // Assert
-        Assert.NotEmpty(items);
-        Assert.Equal(4, totalCount);
-        Assert.Equal(expectedTitleOfFirstItem, items[0].Title);
-        Assert.Equal(expectedTitleOfLastItem, items[^1].Title);
+            // Assert
+            Assert.NotEmpty(items);
+            Assert.Equal(4, totalCount);
+            Assert.Equal(expectedTitleOfFirstItem, items[0].Title);
+            Assert.Equal(expectedTitleOfLastItem, items[^1].Title);
+        }
     }
 
     [Fact]
@@ -123,19 +116,26 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
         var baseTime = DateTime.UtcNow;
         var movies = new List<Movie>();
 
-        // Criamos 15 filmes rapidamente
         for (var i = 1; i <= 15; i++)
         {
             movies.Add(new Movie($"Movie {i}", "Desc", 100, 10m, baseTime.AddMinutes(i)));
         }
 
-        await _context.Movies.AddRangeAsync(movies);
-        await _context.SaveChangesAsync();
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Movies.AddRangeAsync(movies);
+            await context.SaveChangesAsync();
+        }
 
         var query = new ListMoviesQuery(Page: 2, PageSize: 5);
 
         // Act
-        var (items, totalCount) = await _repository.ListAsync(
+        using (var scope = ScopeFactory.CreateScope())
+        {
+            var repository = scope.ServiceProvider.GetRequiredService<IMovieRepository>();
+
+            var (items, totalCount) = await repository.ListAsync(
             query.Page,
             query.PageSize,
             query.Search,
@@ -144,9 +144,10 @@ public class MovieRepositoryTests : IClassFixture<IntegrationTestWebAppFactory>,
             CancellationToken.None
             );
 
-        // Assert
-        Assert.NotEmpty(items);
-        Assert.Equal(5, items.Count);
-        Assert.Equal(15, totalCount);
+            // Assert
+            Assert.NotEmpty(items);
+            Assert.Equal(5, items.Count);
+            Assert.Equal(15, totalCount);
+        }
     }
 }
