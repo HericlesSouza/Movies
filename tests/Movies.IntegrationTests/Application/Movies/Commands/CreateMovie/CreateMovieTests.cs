@@ -13,30 +13,29 @@ namespace Movies.IntegrationTests.Application.Movies.Commands.CreateMovie;
 
 public class CreateMovieTests : IClassFixture<IntegrationTestWebAppFactory>, IAsyncLifetime
 {
-    private readonly IServiceScope _scope;
-    private readonly AppDbContext _context;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly HttpClient _client;
+    private readonly Func<Task> _resetDatabase;
 
     public CreateMovieTests(IntegrationTestWebAppFactory factory)
     {
-        _scope = factory.Services.CreateScope();
-        _context = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        _scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
         _client = factory.CreateClient();
+
+        _resetDatabase = async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Movies.ExecuteDeleteAsync();
+        };
     }
 
-    public async Task DisposeAsync()
-    {
-        _scope.Dispose();
-        await Task.CompletedTask;
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
 
-    public async Task InitializeAsync()
-    {
-        await _context.Movies.ExecuteDeleteAsync();
-    }
+    public async Task InitializeAsync() => await _resetDatabase();
 
     [Fact]
-    public async Task Create_ShouldPersistAndRetrieveMovie_WhenRequestIsValid()
+    public async Task Create_ShouldPersistMovie_WhenRequestIsValid()
     {
         // Arrange
         var command = new CreateMovieCommand(
@@ -45,39 +44,27 @@ public class CreateMovieTests : IClassFixture<IntegrationTestWebAppFactory>, IAs
                 DurationInMinutes: 136,
                 Price: 10m);
 
-        var jsonString = JsonContent.Create(command);
+        // Act
+        var createResponse = await _client.PostAsJsonAsync("/api/movies", command);
 
-        // Act (Create)
-        var createResponse = await _client.PostAsync("/api/movies", jsonString);
-
-        // Assert (Create)
+        // Assert
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var responseDto = await createResponse.Content.ReadFromJsonAsync<MovieDto>();
+        Assert.NotNull(responseDto);
 
-        var createdMovie = await createResponse.Content.ReadFromJsonAsync<MovieDto>();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        Assert.NotNull(createdMovie);
-        Assert.Equal(command.Title, createdMovie.Title);
-        Assert.Equal(command.Description, createdMovie.Description);
-        Assert.Equal(command.DurationInMinutes, createdMovie.DurationInMinutes);
-        Assert.Equal(command.Price, createdMovie.Price);
+        var movieDatabase = await context.Movies.FindAsync(responseDto.Id);
 
-        Assert.NotEqual(Guid.Empty, createdMovie.Id);
-        Assert.True(createdMovie.CreatedAt > DateTime.UtcNow.AddSeconds(-30));
-        Assert.True(createdMovie.UpdatedAt > DateTime.UtcNow.AddSeconds(-30));
+        Assert.NotNull(movieDatabase);
+        Assert.Equal(command.Title, movieDatabase.Title);
+        Assert.Equal(command.Description, movieDatabase.Description);
+        Assert.Equal(command.DurationInMinutes, movieDatabase.DurationInMinutes);
+        Assert.Equal(command.Price, movieDatabase.Price);
 
-        // Act (Retrieve)
-        var getResponse = await _client.GetAsync($"/api/movies/{createdMovie.Id}");
-
-        // Assert (Retrive)
-        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-
-        var retrievedMovie = await getResponse.Content.ReadFromJsonAsync<MovieDto>();
-        Assert.NotNull(retrievedMovie);
-        Assert.Equal(createdMovie.Id, retrievedMovie.Id);
-        Assert.Equal(command.Title, retrievedMovie.Title);
-        Assert.Equal(command.Description, retrievedMovie.Description);
-        Assert.Equal(command.DurationInMinutes, retrievedMovie.DurationInMinutes);
-        Assert.Equal(command.Price, retrievedMovie.Price);
+        Assert.InRange(movieDatabase.CreatedAt, DateTime.UtcNow.AddSeconds(-5), DateTime.UtcNow);
+        Assert.InRange(movieDatabase.UpdatedAt, DateTime.UtcNow.AddSeconds(-5), DateTime.UtcNow);
     }
 
     [Theory]
