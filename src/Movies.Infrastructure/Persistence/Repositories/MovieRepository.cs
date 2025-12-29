@@ -46,7 +46,9 @@ public class MovieRepository(AppDbContext context) : IMovieRepository
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(m => m.Title.Contains(search, StringComparison.OrdinalIgnoreCase));
+        {
+            query = query.Where(m => EF.Functions.ILike(m.Title, $"%{search}%"));
+        }
 
         var totalCount = await query.CountAsync(ct);
 
